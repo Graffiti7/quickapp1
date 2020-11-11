@@ -1,0 +1,335 @@
+<template>
+
+  <div class="chart-wrap">
+
+    <canvas id="chart" style="margin-top:100px;width: {{width}}px; height: {{height}}px;" onclick="initChart1" onlongpress="initChart2"></canvas>
+  
+  </div>
+  
+</template>
+
+<script>
+  import Charts from 'apex-ui/components/charts/qacharts-min.js'
+
+  import storage from '@system.storage' 
+
+  let $chart
+
+  export default {
+    props: {
+      width: {
+        default: 742,
+      },
+      height: {
+        default: 800,
+      },
+      
+      todo:{
+        default:0,
+      },
+      doing:{
+        default:0,
+      },
+      done:{
+        default:0,
+      },      
+    },
+
+    data() {
+
+      return {
+ 
+      }
+    },
+
+    onInit() {
+
+      let that=this
+
+     storage.get({
+
+        key:'todo1',
+
+        success: function(data) {
+        
+        that.todo=JSON.parse(data)
+
+        console.log(JSON.parse(data))
+      },
+      fail: function(data, code) {
+
+        console.log(`handling fail, code = ${code}`)
+      }
+    })
+
+     storage.get({
+
+        key: 'doing1',
+
+        success: function(data) {
+
+          that.doing=JSON.parse(data)
+
+          console.log(JSON.stringify(data))
+
+        },
+        fail: function(data, code) {
+
+          console.log(`handling fail, code = ${code}`)
+
+        }
+
+      })
+      
+     storage.get({
+
+        key: 'done1',
+
+        success: function(data) {
+
+            that.done=JSON.parse(data)
+         
+           console.log(JSON.stringify(data))
+        },
+        fail: function(data, code) {
+
+          console.log(`handling fail, code = ${code}`)
+        }
+      })
+      console.log(`外部传递的数据：`, that.todo, that.doing,that.done)
+    },
+      
+    initChart1() {
+
+      $chart = new Charts({
+
+        element: this.$element('chart'),
+
+        width: this.width,
+
+        height: this.height,
+        
+        xAxis: {
+
+          type: 'category',
+
+          data: ['todo', 'doing', 'done'],
+
+          axisName:{
+
+            show:true,
+
+            text:'状态',
+
+            gap:0,
+
+            textStyle:{
+
+              fontSize:35
+            }
+          },
+          axisLabel: {
+
+            show: true,
+
+            gap: 5,
+
+            textStyle: {
+
+              color: '#666666',
+
+              fontSize: 35,
+            },
+        },
+          axisTick: {
+
+            show: false,
+
+            length: 5,
+
+            lineStyle: {
+
+              lineWidth: 1,
+
+              color: '#666666',
+
+            },
+        },
+        },
+        series: [
+          { 
+            
+            name: '事件',
+
+            type: 'bar',
+
+            data: [this.todo,this.doing,this.done],
+
+            barMaxWidth: 70,
+
+            barMinWidth: 1,
+
+            label:{
+
+              fontSize:50,
+             
+            }
+          },
+        ],
+        legend:{
+          show:false
+        },
+        yAxis: {
+
+        show: true,
+
+        type: 'value',
+
+        max: 'auto',
+
+        min: 'auto',
+
+        splitNumber: 3,
+
+        axisName: {
+
+            show: true,
+
+            text: '数量',
+
+            gap: 20,
+
+            textStyle: {
+
+              color: '#666666',
+
+              fontSize: 35,
+
+              align: 'center',
+            },
+        },
+
+        axisLabel: {
+
+            show: true,
+
+            gap: 5,
+
+            textStyle: {
+
+              color: '#666666',
+
+              fontSize: 30,
+            },
+        },
+        axisTick: {
+
+            show: false,
+
+            length: 5,
+
+            lineStyle: {
+
+              lineWidth: 1,
+
+              color: '#666666',
+            },
+        },
+        axisLine: {
+
+            show: true,
+
+            lineStyle: {
+
+              lineWidth: 1,
+
+              color: '#666666',
+            },
+        },
+          axisSplitLine: {
+
+            show: true,
+
+            lineStyle: {
+
+              lineWidth: 1,
+
+              color: '#dddddd',
+            },
+        },
+    },
+
+
+        
+    
+        
+        onRenderComplete: () => {
+          console.log('chartBar renderComplete')
+         
+        },
+      })
+    },
+     initChart2() {
+      return new Promise((resolve, reject) => {
+
+        $chart = new Charts({
+
+          element: this.$element('chart'),
+          
+          width: 760,
+          
+          height: 700,
+
+          padding:[20,20,82,0],
+          series: [
+            {
+              name: "饼图",
+
+              type: 'pie',
+
+              data: [
+                {
+                  name: 'todo',
+                  value: this.todo,
+                },
+                {
+                  name: 'doing',
+                  value: this.doing,
+                },
+                {
+                  name: 'done',
+                  value: this.done,
+                },
+                
+              ],
+              label:{
+                fontSize:30
+              },
+              offsetAngle:0,
+            },
+            
+          ],
+          legend:{
+            
+            textStyle:{
+
+              fontSize:40,
+
+              padding:20
+            }
+              },
+          onRenderComplete: () => {
+            console.log('chartPie renderComplete')
+            resolve()
+          },
+        })
+      })
+    },
+  }
+</script>
+<style>
+.chart-wrap{
+  justify-content: center;
+  align-content: center;
+}
+</style>

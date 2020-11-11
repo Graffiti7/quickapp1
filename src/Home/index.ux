@@ -1,0 +1,781 @@
+<!--引入自定义插件-->
+<import name="my-button" src="apex-ui/components/button/index"></import>
+
+<import name="my-input" src="apex-ui/components/input/index"></import>
+
+<import name="comp" src="../Statistics/index.ux"></import>
+
+<template>
+  
+  <div class="page" >
+       
+    <div class="page-header">      
+      <!--时间选择器-->
+      <div class="pickers">
+
+        <picker class="picker1" type="date" value="{{date}}" onchange="getDate"></picker>
+    
+        <picker class="picker2" type="time" value="{{time}}" onchange="getTime"></picker>
+
+      </div>
+      
+      <!--列表输入行-->
+      <div class="new-todo {{dynamicClassName}}">
+        
+        <input class="input-text" type="text" placeholder="What needs to be done?" value="{{newItemName}}"
+               onchange="updateValue" onfocus="updateClass"/>
+               
+        <image class="btn-sr" src="../Common/3.png" ontouchstart="init" ontouchend="stop"></image>
+            
+        <image class="btn-add" src="../Common/6.png" onclick="addItem"></image>
+      
+      </div>
+    
+    </div>
+
+    <!--列表项-->
+    <div class="page-main">
+      
+      <div class="todo" for="{{listData}}" onlongpress="resetvalue($idx)">
+        
+        <div class="btn-check {{($item.completed==1) ? 'btn-checking' : ($item.completed==2)?'btn-checked':''}}" onclick="modifyItemStatus($idx)"></div>
+        
+        <div class="input-text">
+
+        <text style="width:330px;">{{$item.value}}</text>
+
+        <text class="time-check" onclick="Cd($idx)">{{$item.date}} {{$item.time}}</text>
+
+        </div>
+
+        <image class="btn-del" src="../Common/5.png" onclick="showHint('Long press x to delete it')" onlongpress="deleteItem($idx)"></image>
+        
+      </div>
+    
+    </div>
+  
+  </div>
+
+</template>
+
+<style lang="less">
+  /* 页面样式 */
+  .page {
+    
+    flex-direction: column;
+
+    height: 1268px;
+
+  }
+  /*日期选择器样式*/
+  .picker1{
+      
+      margin-left: 420px;
+      
+      margin-right: 20px;
+      
+      font-size: 40px;
+
+    }
+  /*时间选择器样式*/
+  .picker2{
+      
+      font-size: 40px;
+
+    }  
+  /* 状态按钮样式 */
+  .btn-check {
+    
+    width: 50px;
+    
+    height: 50px;
+    
+    margin: 25px;
+    
+    border-radius: 25px;
+    
+    border-width: 2px;
+    
+    border-color: #e5e5e5;
+  }
+  /*事件进行中图标*/
+  .btn-checking{
+    
+    border-width: 0px;
+    
+    background-image: url('/Common/in-progress.png');
+  }
+  /*事件完成图标*/
+  .btn-checked {
+    
+    border-width: 0px;
+    
+    background-image: url('/Common/checked.png');
+  }
+
+
+
+  /*输入行样式*/
+  .page-header {
+    
+    flex-direction: column;
+ 
+    .new-todo {
+      
+      height: 100px;
+      
+      border: 2px solid #ededed;
+      
+      background-color: #ffffff;
+      
+      .input-text {
+        
+        flex-grow: 1;
+        
+        padding: 0 30px;
+
+
+      }
+      /*语音输入样式*/
+      .btn-sr{
+
+        width: 80px;
+
+        margin-top: 10px;
+
+        display: flex;
+
+        background-color: #ffffff;
+
+      }
+      /*添加图标*/
+      .btn-add {
+        
+        flex-shrink: 0;
+
+        margin-top: 10px;
+
+        margin-right: 10px;
+        
+        width: 80px;
+        
+        background-color: #FFFFFF
+
+      }
+
+    }
+    .input-focus {
+      
+      border-color: #ead7d7;
+
+    }
+  }
+  /*列表主体部分样式*/
+  .page-main {
+    
+    flex-direction: column;
+    
+    flex-grow: 1;
+   
+    flex-shrink: 0;
+
+    .todo {
+
+      animation-name: showItem;
+
+      animation-duration: 1s;
+
+      background-color: #ffffff;
+      
+    }
+  }
+    
+  /*列表项样式*/
+  .todo {
+      
+    height: 100px;
+      
+    border-bottom-width: 1px;
+      
+    border-bottom-color: #ededed;
+      
+    > text {
+      
+      flex-grow: 1;
+      
+      font-size: 35px;
+      
+      color: #666666;
+        
+      }
+    /*删除项*/
+    .btn-del {
+        
+      flex-grow: 0;
+
+      position: absolute;
+
+      left: 660px;
+
+      height: 80px;
+        
+      width: 80px;
+
+      margin-top: 10px;
+
+      margin-right: 30px;
+        
+      background-color:#ffffff;
+
+      
+
+      }
+  
+       
+    }
+    /*显示动画*/
+    @keyframes showItem {
+
+    from {
+
+      opacity: 0;
+
+    }
+    to {
+
+      opacity: 1;
+
+    }
+  }
+</style>
+
+<script>
+  /*导入模块*/
+  import prompt from '@system.prompt'
+
+  import storage from '@system.storage'
+
+  import asr from '@service.asr'
+
+  import vibrator from '@system.vibrator'
+
+  import alarm from '@system.alarm' 
+
+  import Countdown from 'apex-ui/components/countdown/index'
+
+  import router from '@system.router'
+
+
+  export default {
+    data: {
+      //语音输入记录
+      action: '',
+      // 输入的记录内容
+      newItemName: '',
+      // 展示列表
+      listData: [],
+      // 动态样式名
+      dynamicClassName: '',
+      //时间
+      time: '',
+      //日期
+      date: '',
+      //天数
+      day:'',
+      //月份
+      month:'',
+      //计数器
+      todo: "",
+
+      doing: "",
+
+      done: "",
+    },
+    
+    onInit () {
+
+      const date = new Date()    
+
+      const Y = date.getFullYear()
+
+      const M = date.getMonth() + 1
+
+      const D = date.getDate()
+
+      const H = date.getHours()
+
+      const m = date.getMinutes()
+      
+      const now = Y + '-' + M + '-' + D
+      
+      this.date = Y + '-' + M + '-' + D
+
+      this.time = H + ':' + m
+
+      this.$on('dispathEvt',this.dispathEvt)
+
+      let that=this
+      /*读取储存的todo*/
+      storage.get({
+
+        key:'todo1',
+
+        success: function(data) {
+        
+          that.todo=JSON.parse(data)
+
+          console.log(JSON.stringify(data))
+
+      },
+        fail: function(data, code) {
+
+          console.log(`handling fail, code = ${code}`)
+
+      }
+    })
+      /*读取储存的doing */
+      storage.get({
+
+        key: 'doing1',
+
+        success: function(data) {
+
+          that.doing=JSON.parse(data)
+
+          console.log(JSON.stringify(data))
+
+        },
+        fail: function(data, code) {
+
+          console.log(`handling fail, code = ${code}`)
+
+        }
+      })
+      /*读取储存的done */
+      storage.get({
+
+        key: 'done1',
+
+        success: function(data) {
+            
+          that.done=JSON.parse(data)
+         
+          console.log(JSON.stringify(data))
+        },
+        fail: function(data, code) {
+
+          console.log(`handling fail, code = ${code}`)
+        }
+      })
+      
+      console.log(`读取的数据：`, that.todo, that.doing,that.done)
+    },
+
+
+    /*获取时间*/ 
+    getTime (e) {
+
+      this.time = e.hour + ':' + e.minute
+
+      e.value = this.time
+    },
+    /*获取日期*/
+    getDate (e) {
+
+      this.date =  e.year+'-'+(e.month+1)+'-'+e.day
+
+      e.value = this.date
+
+    },
+    /*初始化语音*/
+    init() {
+       // 定义 that 代理 this，保存当前作用域  
+       let that = this
+       this.newItemName = ''
+       // asr 模块初始化
+       asr.init({
+        // 初始化成功后的回调函数
+        success: function() {
+          that.action = 'init success'
+        },
+        // 初始化失败后的回调函数
+        fail: function(data, code) {
+          that.action = `init fail, code=${code}, data=${data}`
+        }
+      })
+      // 注册“部分识别”的响应函数，会在一次语音识别期间（asr.start 到 asr.stop 期间）被多次调用
+      asr.onpartialresult = ({ result }) => {
+        this.newItemName = ` ${result}`
+      }
+      // 注册“语音识别停止”的响应函数，在一次语音识别完成后（asr.stop 时）被调用
+      asr.oncompleteresult = ({ result }) => {
+        this.newItemName= `${result.match(/\[(.*)\]/)[1]}`
+      }
+      // 注册语音识别期间出现错误的响应函数，在出错后被调用
+      asr.onerror = (error) => {
+        this.newItemName = `onerror: ${error}`
+      }
+      this.start()
+    },
+    /*开始语音输入*/
+    start() {
+      // 定义 that 代理 this，保存当前作用域  
+      let that = this
+      // 开始一次语音识别
+      that.newItemName = ''
+
+      asr.start({
+
+        success: function() {
+
+          that.action = 'start success'
+
+        },
+        fail: function(data, code) {
+
+          that.action = `start fail, code=${code}, data=${data}`
+
+        }
+      })
+    },
+    /*停止语音输入*/
+    stop() {
+      // 定义 that 代理 this，保存当前作用域  
+      let that = this
+      // 停止当前语音识别
+      asr.stop({
+
+        success: function() {
+
+          that.action = 'stop success'
+
+        },
+        fail: function(data, code) {
+
+          that.action = `stop fail, code=${code}, data=${data}`
+
+        }
+      })
+    },
+    /*关闭语音*/
+    close() {
+      // 定义 that 代理 this，保存当前作用域  
+      let that = this
+      // 关闭语音识别功能，重新开始的话需要重新调用 asr.init
+      asr.close({
+
+        success: function() {
+
+          that.action = 'close success'
+
+        },
+        fail: function(data, code) {
+
+          that.action = `close fail, code=${code}, data=${data}`
+
+        }
+      })
+    },
+    /*倒计时*/
+    Cd(idx) {
+
+      const that = this;
+        
+      this.countdown= new Countdown({
+              
+        date: this.listData[idx].date+" "+this.listData[idx].time,
+                
+        render(date) {
+                    
+          const days = this.leadingZeros(date.days, 2) + ' 天 ';
+                    
+          const hours = this.leadingZeros(date.hours, 2) + ' 时 ';
+                    
+          const min = this.leadingZeros(date.min, 2) + ' 分 ';
+                    
+          that.number = days + hours + min ;
+                },
+            })
+          this.outwindow()     
+        },
+    /*震动*/   
+    vb(){
+
+      vibrator.vibrate({
+
+      mode: 'long'
+
+      })
+    },
+    outwindow(){
+      if(this.number == '00天00时00分')
+      this.vb()
+          
+      prompt.showDialog({
+          
+        title: '提醒',
+          
+        message: '时间剩余'+this.number,
+          
+        buttons: [
+        {
+          text: '返回',
+
+          color: '#33dd44'
+        }
+        ],
+        success: function(data) {
+
+        console.log('handling callback')
+
+        },
+        cancel: function() {
+
+        console.log('handling cancel')
+
+        },
+        fail: function(data, code) {
+
+        console.log(`handling fail, code = ${code}`)
+
+       }
+      })
+      
+      
+    },
+
+
+    /*更新事件*/
+    updateValue (evt) {
+
+      this.newItemName = evt.value
+
+    },
+    /*更新动态*/
+    updateClass () {
+
+      this.dynamicClassName = 'input-focus'
+
+    },
+
+    /* 增加一条记录*/
+    addItem () {
+      
+      if (this.newItemName === '') {
+        
+        this.showHint(`Please enter what you need to do`)
+      } 
+      else{
+        
+        this.listData.push({ value: this.newItemName, completed: 0, date: this.date, time: this.time})
+        
+        this.newItemName = ''
+
+        this.todo++
+
+      }
+      /*储存todo */
+      this.savetodo()
+
+    },
+
+    /*信息提示*/
+    showHint (msg) {
+      
+      prompt.showToast({ message: msg })
+
+    },
+
+    /* 修改状态*/
+    modifyItemStatus (idx, evt) {
+
+      if(this.listData[idx].completed==0)
+      {
+         this.listData[idx].completed +=1;
+
+      }    
+      else if(this.listData[idx].completed==1)
+      {
+        this.listData[idx].completed +=1;
+
+      }
+      else
+      {
+        this.listData[idx].completed=0;
+
+      }
+      if(this.listData[idx].completed==0)
+      {
+        this.todo++;
+
+        this.done--;
+      }
+      
+      if(this.listData[idx].completed==1)
+      {
+        this.todo--;
+
+        this.doing++;
+      }
+      if(this.listData[idx].completed==2)
+      {
+        this.doing--;
+
+        this.done++;
+      }   
+      
+      this.Statistics()
+
+    },
+
+    /**
+     * 删除一条记录
+     */
+    deleteItem (idx) {
+      
+      if(this.listData[idx].completed==0)
+      {
+        this.todo--;
+        
+      }
+      if(this.listData[idx].completed==1)
+      {
+
+        this.doing--;
+      }
+      if(this.listData[idx].completed==2)
+      {
+
+        this.done--;
+      }  
+      this.listData.splice(idx, 1)
+
+      this.Statistics()
+
+    },
+
+    /*修改一条记录*/
+    resetvalue(idx){
+      
+      if(this.listData[idx].completed==1)
+      {
+        this.todo++;
+
+        this.doing--;
+      }
+      if(this.listData[idx].completed==2)
+      {
+        this.todo++;
+
+        this.done--;
+      }
+      this.Statistics()
+      this.listData.splice(idx, 1,{ value: this.newItemName, completed: 0,date: this.date, time: this.time})  
+      
+      this.newItemName=""
+       
+      const date = new Date()    
+
+      const Y = date.getFullYear()
+
+      const M = date.getMonth() + 1
+
+      const D = date.getDate()
+
+      const H = date.getHours()
+
+      const m = date.getMinutes()
+      
+      const now = Y + '-' + M + '-' + D
+      
+      this.date = Y + '-' + M + '-' + D
+
+      this.time = H + ':' + m
+
+      
+
+      },
+    /*储存记录*/
+    saveItem(idx){
+    
+      storage.set({
+    
+        key: this.listData,
+    
+        success: function(data) {
+    
+          console.log('handling success')
+        },
+    
+        fail: function(data, code) {
+    
+          console.log(`handling fail, code = ${code}`)
+        }
+      })
+    },
+  /*统计并更新计数器*/
+  Statistics(todo,doing,done){
+       
+      console.log(this.todo)
+
+      console.log(this.doing)
+
+      console.log(this.done)
+      
+      this.savetodo()
+      
+      this.savedoing()
+     
+      this.savedone()
+  },
+  savetodo()
+  {
+      /*储存todo */
+      storage.set({
+        key:'todo1',
+        value: this.todo,  
+        success: function(data) {
+          console.log('handling success')
+          console.log(JSON.stringify(data))
+    
+      },
+      fail: function(data, code) {
+          console.log(`handling fail, code = ${code}`)
+      }
+      })
+  },
+    savedoing()
+  {
+      /*储存doing */
+      storage.set({
+        key:'doing1',
+        value: this.doing,  
+        success: function(data) {
+          console.log('handling success')
+          console.log(JSON.stringify(data))
+    
+      },
+      fail: function(data, code) {
+          console.log(`handling fail, code = ${code}`)
+      }
+      })
+  },
+    savedone()
+  {
+      /*储存todo */
+      storage.set({
+        key:'done1',
+        value: this.done,  
+        success: function(data) {
+          console.log('handling success')
+          console.log(JSON.stringify(data))
+    
+      },
+      fail: function(data, code) {
+          console.log(`handling fail, code = ${code}`)
+      }
+      })
+  }
+  
+}
+</script>

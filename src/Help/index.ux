@@ -1,0 +1,66 @@
+<template>
+    <div class="page">
+
+        <text class="title">帮助文档</text>
+
+        <div class="txt">
+
+            <text style="font-size:40px;margin-bottom:30px">1.点击颜色按钮更换主题色</text>
+
+            <text style="font-size:40px;margin-bottom:30px">2.点击麦克风图案可进行语音输入</text>
+
+            <text style="font-size:40px;margin-bottom:30px">3.点击添加图案进行添加事件</text>
+
+            <text style="font-size:40px;margin-bottom:30px">4.点击对话框上方时间可为待添加事件加入完成时间</text>
+
+            <text style="font-size:40px;margin-bottom:30px">5.点击事件项中第一个图案可调整事件的进行状态（todo，doing，done）</text>
+
+            <text style="font-size:40px;margin-bottom:30px">6.长按事件项可清除事件，重复 3，4再长按想要修改的空白项可重新填入事件与完成时间</text>
+
+            <text style="font-size:40px;margin-bottom:30px">7.点击事件项中的时间可显示距完成时间剩余时间</text>
+
+            <text style="font-size:40px;margin-bottom:30px">8.点击删除图案可以将整条事件项删除</text>
+
+            <text style="font-size:40px;margin-bottom:30px">9.进入统计界面后，点击界面空白处可通过柱状图形式显示当前todo，doing，done三种状态的事件数量</text>
+            
+            <text style="font-size:40px;margin-bottom:30px">10.进入统计界面后，长按界面空白处可通过饼状图形式显示当前todo，doing，done三种状态的事件比例</text>
+            
+            <text style="font-size:40px;margin-bottom:30px">11.用户界面做工较为粗糙，会在日后不断完善QAQ</text> 
+        </div>
+        
+    </div>
+
+</template>
+
+<style>
+.page{
+    flex-direction: column;
+        
+}   
+.title{
+
+    font-size: 60px;
+        
+    text-align: center;    
+
+    margin-top: 70px;
+
+    margin-bottom: 60px;
+}
+.txt{
+    
+    flex-direction: column;
+
+    margin-left: 30px;
+    margin-right: 30px;
+    
+}
+</style>
+<script>
+export default {
+    onInit() {
+        this.$page.setTitleBar({text: '帮助'})
+    },
+}
+</script>
+

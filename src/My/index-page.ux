@@ -1,0 +1,80 @@
+<template>
+    
+    <div class="items">
+
+    <input class="inspiration" type="button" style="margin-bottom:30px;width:700px;background-color:#ffffff;" value="每日新闻" onclick="open"></input>
+      
+    <input class="help" type="button" style="margin-bottom:30px;background-color:#ffffff;" value="帮助文档" onclick="jump"></input>
+      
+    <input class="dev-INF" type="button" style="margin-bottom:30px;background-color:#ffffff;" value="作者信息" onclick="showINf"></input>
+
+    <input class="set" type="button" style="margin-bottom:30px;background-color:#ffffff;" value="设置" ></input>
+        
+    </div>
+
+</template>
+
+<script>
+
+import webview from '@system.webview'
+
+import router from '@system.router'
+
+import prompt from '@system.prompt'
+
+export default {
+
+    open(){
+    webview.loadUrl({
+
+      url: 'http://www.tju.edu.cn/',
+
+      allowthirdpartycookies: true
+
+        })
+    },
+    jump(){
+        router.push({
+
+            uri: '/Help',
+
+        })
+    },
+    showINf(){
+        prompt.showDialog({
+
+        title: '作者',
+
+        message: 'From TJU 智算学部七班 高铭泽',
+
+        buttons: [
+        {
+            text: '了解了',
+
+            color: '#33dd44'
+        }
+    ],
+        success: function(data) {
+            console.log('handling callback')
+        },
+        cancel: function() {
+            console.log('handling cancel')
+        },
+        fail: function(data, code) {
+            console.log(`handling fail, code = ${code}`)
+        }
+        })
+    }
+}
+</script>
+<style>
+.items {
+
+    flex-direction: column;
+
+    justify-content: space-around;
+
+}
+</style>
+
+

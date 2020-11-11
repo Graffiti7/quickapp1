@@ -1,0 +1,78 @@
+<import name="my-avatar" src="apex-ui/components/avatar/index"></import>
+
+<import name="my-accordion" src="apex-ui/components/accordion/index.ux"></import>
+
+<import name="my-accordion-group" src="apex-ui/components/accordion-group/index.ux"></import>
+
+<import name="comp" src="./index-page.ux"></import>
+ 
+<template>
+  
+  <div class="page">
+
+    <div class="group">
+      <!--头像-->
+      <my-avatar src="/Common/me.jpg" size="large" shape="square" ></my-avatar>
+
+      <div class="inf" style="flex-direction:column;">
+        <!--姓名标签-->
+        <div class="ns" style="margin-top:15px;">
+
+          <text class="name" style="margin-left:15px;font-size:40px;height:40px;color:#FF6666">GMZ</text>
+
+          <image class="sex" src="/Common/man.jpg" style="margin-left:15px;width:35px;"></image>
+        
+        </div>
+        
+        <!--个人爱好-->
+        <div class="label" style="margin-top:15px;margin-left:20px;">
+        
+          <text style="background-color:#ff6347;color:#ffffff;width:80px;text-align:center;border-radius:5px;">宅男</text>
+
+          <text style="background-color:#FF0033;color:#ffffff;width:120px;text-align:center;border-radius:5px;margin-left:15px;">敲代码</text>
+
+          <text style="background-color:#00CC00;color:#ffffff;width:120px;text-align:center;border-radius:5px;margin-left:15px;">弹吉他</text>
+      
+        </div>
+      
+      </div> 
+      
+      <div class="home-page" style="margin-left:110px;font-size:35px;">
+          <text>主页 ></text>
+      </div>
+      
+    </div>
+    <!--下拉菜单-->
+    <div class="items">
+      
+      <my-accordion-group id="default" title=" " default-open="{{ ['0', '1'] }}" onchange="handleChange">
+      
+      <my-accordion group-id="default" title="功能菜单" ><comp></comp></my-accordion>
+      
+      
+    </div>
+  
+  </div>
+  
+</template>
+
+<style>
+  .page{
+    flex-direction: column;
+    
+  }
+  .group {
+    flex-direction: row;
+    margin-top: 30px;
+    left: 30px;
+    } 
+  .items {
+    flex-direction: column;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  
+
+</style>
+
+

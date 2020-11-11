@@ -1,0 +1,339 @@
+<!--引入首页-->	
+
+<import name='first' src="../Home/index.ux"></import>	
+
+<!--引入“分类”页面-->	
+
+<import name='type' src="../Statistics/index.ux"></import>	
+
+<!--引入“我的”页面-->	
+
+<import name='my' src="../My/index.ux"></import>	
+<template>
+  
+  <div class="tutorial-page" style="background-color:{{bgcolor}}">
+
+    <!--添加改变主题颜色按钮-->
+
+    <div class="color-button">
+      
+      <input type="button"  id="btn1" onclick="changecolor1" style="background-color:{{btncolor1}};width:50px;height:50px;margin: 10px 10px;border-radius:25px;"></input>
+      
+      <input type="button"  id="btn1" onclick="changecolor2" style="background-color:{{btncolor2}};width:50px;height:50px;margin: 10px 10px;border-radius:25px;"></input>
+      
+      <input type="button"  id="btn1" onclick="changecolor3" style="background-color:{{btncolor3}};width:50px;height:50px;margin: 10px 10px;border-radius:25px;"></input>
+
+      <input type="button"  id="btn1" onclick="changecolor4" style="background-color:{{btncolor4}};width:50px;height:50px;margin: 10px 10px;border-radius:25px;"></input>
+    
+    </div>
+    <text class="title" style="color:{{titlecolor}}">Todo-List</text>
+ 
+     
+    <!--根据不同的flag显示不同的页面-->	
+
+        <block if="{{flag==0}}">	
+
+            <!--显示"首页"-->	
+
+            <first></first>	
+
+        </block>	
+
+        <block elif="{{flag==1}}">	
+
+            <!--显示"统计"页面-->	
+
+            <type></type>	
+
+        </block>	
+
+        <block elif="{{flag==2}}">	
+
+            <!--显示"用户"页面-->	
+
+            <my></my>	
+
+        </block>	
+
+ 	
+
+        <!--底部导航栏-->	
+
+        <tabs>	
+
+            <tab-bar class="footer-container">	
+
+                <!--遍历tabBar.list，生成导航栏-->	
+
+                <block for='tabBar.list'>	
+
+                    <div class="footer-item" onclick="setIndex($idx)">	
+
+                        <!--$idx为tabBar.list当前的索引值，以0开始-->	
+
+                        <!--如果当前页面被选中-->	
+
+                        <block if='{{$idx==flag}}'>	
+
+                            <!--icon-->	
+
+                            <image src="{{tabBar.list[$idx].selected_icon}}" class="footer-item-img"></image>	
+
+                            <!--页面标签值-->	
+
+                            <text class="tab-text" style="color: {{tabBar.list[$idx].selected_color}}">{{tabBar.list[$idx].name}}</text>	
+
+                        </block>	
+
+                        <!--当前页面未被选中-->	
+
+                        <block else>	
+
+                            <image src="{{tabBar.list[$idx].icon}}" class="footer-item-img"></image>	
+
+                            <text class="tab-text" style="color: {{tabBar.list[$idx].color}}">{{tabBar.list[$idx].name}}</text>	
+
+                        </block>	
+
+                    </div>	
+
+                </block>	
+
+            </tab-bar>	
+
+        </tabs>			
+  
+    </div>
+
+
+</template>
+<style>
+  
+  .tutorial-page {
+
+    flex-direction: column;
+
+    margin-top: 0px;
+    
+  }
+
+  .color-button{
+
+    flex-direction: row;
+
+    margin-top: 10px;
+
+    margin-left: 20px;
+    
+  }
+  .title{
+
+    text-align: center;
+
+    font-size: 80px;
+
+  }
+  tabs{
+    height: 0px;
+  }
+  .footer-container {	
+
+    width: 100%;	
+
+    height: 100px;	
+
+    position: fixed;	
+
+    bottom: 0;	
+
+    margin-bottom: 0;	
+
+    background-color: #FFFFFF;	
+
+    border-top-width: 1px;	
+
+    border-top-color: #CCCCCC;	
+
+    
+
+}	
+
+ 	
+
+.footer-item {	
+
+    width: 17.5%;	
+
+    display: flex;	
+
+    flex-direction: column;	
+
+}	
+
+ 	
+
+.footer-item-img {	
+
+    margin-top: 10px;
+
+    margin-left: 40px;
+
+    margin-bottom: 7px;	
+
+    width: 50px;	
+
+    height: 50px;	
+
+
+}	
+
+ 	
+
+.tab-text {	
+
+    text-align: center;	
+
+    font-size: 20px;	
+
+}
+</style>
+
+<script>
+
+import prompt from '@system.prompt'
+    
+export default {
+
+  
+  data:{  
+
+    title: '示例页面',
+    flag: 0,//默认为 0 首页，1 分类，2 我的	
+      // 输入的记录内容
+
+      titlecolor:'#666666rj',
+          
+      btncolor1:'#CCFF99',
+    
+      btncolor2:'#FF9966',
+    
+      btncolor3:'#CCCCFF',
+
+      btncolor4:'#FFFFFF',
+    
+      bgcolor:'#ffffff',
+  
+    tabBar: {	
+
+      list: [{	
+
+        name: '首页',//当前页面标签值	
+
+        icon: '../Common/home.png',//未选中icon地址	
+
+        color: '#666666',//未选中时文本颜色	
+
+        selected_color: '#1296db',//选中时文本颜色	
+
+        selected_icon: '../Common/home_selected.png'//选中是icon地址	
+
+      }, {	
+
+        name: '统计',	
+
+        icon: '../Common/type.png',	
+
+        color: '#666666',	
+
+        selected_color: '#1296db',	
+
+        selected_icon: '../Common/type_selected.png'	
+
+      }, {	
+
+        name: '用户',	
+
+        icon: '../Common/my.png',	
+
+        color: '#666666',	
+
+        selected_color: '#1296db',	
+
+        selected_icon: '../Common/my_selected.png'	
+
+      }]	
+
+    }	
+
+  },
+  
+
+  onInit () {
+    this.$page.setTitleBar({ text:  this.tabBar.list[this.flag].name})	
+  },
+  
+  setIndex: function (pos) {	
+
+    //设置flag，flag改变后显示的页面也会对应的改变	
+
+    this.flag = pos	
+
+    //设置页面标题	
+
+    this.$page.setTitleBar({ text: this.tabBar.list[pos].name })	
+
+  },
+  showChangePrompt (e) {
+
+    prompt.showToast({
+
+      message: (e.name === undefined ? '' : '---name: ' + e.name)
+
+          + (e.value === undefined ? '' : '---value: ' + e.value)
+
+          + (e.checked === undefined ? '' : '---checked: ' + e.checked)
+
+          + (e.text === undefined ? '' : '---text: ' + e.text)
+
+    })
+
+  },
+    changecolor1(){
+
+    this.bgcolor=this.btncolor1
+
+    this.$page.setTitleBar({backgroundColor:'#66CC99'})
+
+    this.titlecolor='#66CC99'
+
+    
+  },
+  changecolor2(){
+
+    this.bgcolor=this.btncolor2
+
+    this.$page.setTitleBar({backgroundColor:'#FF6600'})
+
+    this.titlecolor='#FF6600'
+  },
+  changecolor3(){
+
+    this.bgcolor=this.btncolor3
+
+    this.$page.setTitleBar({backgroundColor:'#6666FF'})
+
+    this.titlecolor='#6666FF'
+  },
+  changecolor4(){
+
+    this.bgcolor=this.btncolor4
+
+    this.$page.setTitleBar({backgroundColor:'#CCCCCC'})
+
+    this.titlecolor='#CCCCCC'
+  }
+  
+  
+
+}
+</script>
